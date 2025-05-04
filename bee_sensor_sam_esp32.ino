@@ -2,6 +2,7 @@
 #include <HardwareSerial.h>
 
 HardwareSerial MySerial(1);
+
 // HX711
 #define HX_DT 19
 #define HX_SCK 18
@@ -88,13 +89,11 @@ void setup() {
   pinMode(GPIO_WAKEUP, INPUT_PULLUP); // bouton/contact = niveau bas = alerte
   esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP, 0); // 0 = niveau bas déclencheur
 
-  // Réveil automatique toutes les 3h
+  // Réveil automatique
   //esp_sleep_enable_timer_wakeup(3ULL * 60ULL * 60ULL * 1000000ULL);  // 3 heures
   esp_sleep_enable_timer_wakeup(1800ULL * 1000000ULL);  // 30 minutes
   //esp_sleep_enable_timer_wakeup(600ULL * 1000000ULL);  // 10 minutes
-  //Serial.println("\nMise en deep sleep (3h ou détection de vol)");
   esp_deep_sleep_start();
-  //delay(15000);
 }
 
 void loop() { }
