@@ -22,7 +22,7 @@ HX711 scale;
 
 void setup() {
   Serial.begin(115200);
-  MySerial.begin(9600, SERIAL_8N1, 17, 16); // port série du module sigfox
+  MySerial.begin(9600, SERIAL_8N1, 17, 16); // serial port to send RTCM to F9P
     delay(100);
   // Alimentation du HX711 via GPIO
   pinMode(HX_VCC_CTRL, OUTPUT);
@@ -42,28 +42,22 @@ if (esp_reset_reason() == ESP_RST_POWERON) {
   MySerial.println("AT$I=10");
   delay(300);
   
-  uint32_t id = 0x02DF9FA2; // à remplacer par l'id de votre module sigfox sur 8 caracteres donc avec un 0 au debut
   // Lecture poids
   float poids_g = scale.get_units(10);
   if (poids_g < 0) poids_g = 0;
   uint32_t poids10 = (uint32_t)(poids_g * 10);
   Serial.println(poids10);
   // Créer payload (little-endian)
-  byte payload[8];
-  payload[0] = id & 0xFF;
-  payload[1] = (id >> 8) & 0xFF;
-  payload[2] = (id >> 16) & 0xFF;
-  payload[3] = (id >> 24) & 0xFF;
-  payload[4] = poids10 & 0xFF;
-  payload[5] = (poids10 >> 8) & 0xFF;
-  payload[6] = (poids10 >> 16) & 0xFF;
-  payload[7] = (poids10 >> 24) & 0xFF;
+  byte payload[4];
+  payload[0] = poids10 & 0xFF;
+  payload[1] = (poids10 >> 8) & 0xFF;
+  payload[2] = (poids10 >> 16) & 0xFF;
+  payload[3] = (poids10 >> 24) & 0xFF;
   
   // Construire payload hex pour AT$SF
-  char hexStr[17];
-  sprintf(hexStr, "%02X%02X%02X%02X%02X%02X%02X%02X",
-    payload[0], payload[1], payload[2], payload[3],
-    payload[4], payload[5], payload[6], payload[7]);
+  char hexStr[9];
+  sprintf(hexStr, "%02X%02X%02X%02X",
+    payload[0], payload[1], payload[2], payload[3]);
   
   MySerial.print("AT$SF=");
   MySerial.println(hexStr);
