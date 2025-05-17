@@ -8,11 +8,6 @@ HardwareSerial MySerial(1);
 #define HX_SCK 18
 #define HX_VCC_CTRL 23
 
-// SigFox UART (UART2)
-#define SIGFOX_TX 16
-#define SIGFOX_RX 17
-#define SIGFOX_BAUD 9600
-
 // Capteur anti-vol
 #define GPIO_WAKEUP 33
 char idStr[9] = ""; // 8 chars + null
@@ -20,28 +15,30 @@ int i = 0;
 
 HX711 scale;
 
+// Variable conservée pendant le deep sleep uniquement
+RTC_DATA_ATTR bool dejaInitialise = false;
+
 void setup() {
   Serial.begin(115200);
-  MySerial.begin(9600, SERIAL_8N1, 17, 16); // serial port to send RTCM to F9P
+  MySerial.begin(9600, SERIAL_8N1, 17, 16); // port carte sigfox
     delay(100);
   // Alimentation du HX711 via GPIO
   pinMode(HX_VCC_CTRL, OUTPUT);
   digitalWrite(HX_VCC_CTRL, HIGH);
-  delay(100);  // Laisser le capteur démarrer
+  delay(1000);  // Laisser le capteur démarrer
 
   // Initialisation HX711
   scale.begin(HX_DT, HX_SCK);
+  // facteur à calibrer grace à l'ino joint
   scale.set_scale(48.182);  // Ajuste selon ton calibrage
   //scale.tare();
   // Faire la tare uniquement au tout premier démarrage (alimentation)
-if (esp_reset_reason() == ESP_RST_POWERON) {
-  scale.tare();
-}
+  if (!dejaInitialise) 
+    {
+      scale.tare();
+    }
   delay(100);
 
-  MySerial.println("AT$I=10");
-  delay(300);
-  
   // Lecture poids
   float poids_g = scale.get_units(10);
   if (poids_g < 0) poids_g = 0;
