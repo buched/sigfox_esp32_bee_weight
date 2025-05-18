@@ -38,7 +38,7 @@ void setup() {
       scale.tare();
     }
   delay(100);
-
+  
   // Lecture poids
   float poids_g = scale.get_units(10);
   if (poids_g < 0) poids_g = 0;
