@@ -4,17 +4,17 @@
 HardwareSerial MySerial(1);
 
 // HX711
-#define HX_DT 19
-#define HX_SCK 18
-#define HX_VCC_CTRL 23
+#define HX_DT 10
+#define HX_SCK 2
+#define HX_VCC_CTRL 3
 
 // Capteur anti-vol
-#define GPIO_WAKEUP 33
+//#define GPIO_WAKEUP 1
 
 HX711 scale;
 
 // Variable conservée pendant le deep sleep uniquement
-//RTC_DATA_ATTR bool dejaInitialise = false;
+RTC_DATA_ATTR bool dejaInitialise = false;
 
 bool envoyerSigfoxAvecRetries(String hexPayload) {
   const int MAX_RETRIES = 3;
@@ -56,7 +56,7 @@ bool envoyerSigfoxAvecRetries(String hexPayload) {
 void setup() {
   Serial.begin(115200);
   delay(1000); // stabilité
-  MySerial.begin(9600, SERIAL_8N1, 17, 16);
+  MySerial.begin(9600, SERIAL_8N1, 21, 20);
   delay(1000); // attendre que le module SigFox soit prêt
 
   // Alimentation HX711
@@ -68,10 +68,10 @@ void setup() {
   scale.begin(HX_DT, HX_SCK);
   scale.set_scale(48.182);
     // Faire la tare uniquement au tout premier démarrage (alimentation), Nb, normalement décommenté mais certains esp chinois ne supportent pas cette fonction
-  //if (!dejaInitialise) 
-    //{
-      //scale.tare();
-    //}
+  if (!dejaInitialise) 
+    {
+      scale.tare();
+    }
   delay(100);
 
   // Lecture poids
