@@ -101,6 +101,10 @@ void setup() {
   // Extinction HX711
   digitalWrite(HX_VCC_CTRL, LOW);
 
+  // Configuration du réveil par interruption GPIO33 (anti-vol)
+  //pinMode(GPIO_WAKEUP, INPUT_PULLUP); // bouton/contact = niveau bas = alerte
+  //esp_sleep_enable_ext0_wakeup((gpio_num_t)GPIO_WAKEUP, 0); // 0 = niveau bas déclencheur
+  
   // Wakeup, decommenter la ligen désirée et commenter les 2 autres
   //esp_sleep_enable_timer_wakeup(600ULL * 1000000ULL);  // 10 minutes
   esp_sleep_enable_timer_wakeup(1800ULL * 1000000ULL);  // 30 minutes
