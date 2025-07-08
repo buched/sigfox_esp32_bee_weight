@@ -68,10 +68,14 @@ void setup() {
   scale.begin(HX_DT, HX_SCK);
   scale.set_scale(48.182);
     // Faire la tare uniquement au tout premier démarrage (alimentation), Nb, normalement décommenté mais certains esp chinois ne supportent pas cette fonction
-  //if (!dejaInitialise) 
-    //{
-      //scale.tare();
-    //}
+  if (esp_reset_reason() == ESP_RST_POWERON) {
+    Serial.println("tare");
+    scale.tare(); // tare uniquement au premier démarrage
+  }
+  else
+    {
+      Serial.println("tare deja effectué");
+    }
   delay(100);
 
   // Lecture poids
